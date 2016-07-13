@@ -1,2 +1,2 @@
 # MSOLTools
-Tools for msol
+Tools for MSOnLine
