@@ -1,4 +1,4 @@
-﻿function Verb-Noun
+﻿function Get-MsolUserLicenseAssignment
 {
     TRY
     {
@@ -117,8 +117,8 @@
         }
 
 
-    $AllUsers = get-msoluser -userprincipalname 'gene.laisne@cushwake.com'
-    #$AllUsers = get-msoluser -All
+    #$AllUsers = get-msoluser -userprincipalname 'gene.laisne@cushwake.com'
+    $AllUsers = get-msoluser -All
     $UserIndex = 0
 
     $msolAccountSku = get-msolAccountSku
