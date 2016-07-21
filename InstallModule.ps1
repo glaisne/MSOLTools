@@ -10,7 +10,6 @@ if(-Not(Test-Path $TargetPath))
 $filelist = @"
 MSOLTools.psd1
 MSOLTools.psm1
-Get-LicenseAssignmentReport.ps1
 Get-LicenseUsage.ps1
 Get-MsolUserLicenseAssignment.ps1
 New-MSOnLineLicenseReport.ps1
