@@ -4,7 +4,6 @@
 # Load External functions.
 . $PSScriptRoot\Get-LicenseUsage.ps1
 . $PSScriptRoot\Get-MsolUserLicenseAssignment.ps1
-. $PSScriptRoot\New-MSOnLineLicenseReport.ps1
 
 
 

@@ -12,7 +12,6 @@ MSOLTools.psd1
 MSOLTools.psm1
 Get-LicenseUsage.ps1
 Get-MsolUserLicenseAssignment.ps1
-New-MSOnLineLicenseReport.ps1
 "@
 
 $filelist -split "`n" | % { Copy-Item -Verbose -Path "$pwd\$($_.trim())" -Destination "$($TargetPath)\$($_.trim())" }
