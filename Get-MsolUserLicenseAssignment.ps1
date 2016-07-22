@@ -1,5 +1,18 @@
 ﻿function Get-MsolUserLicenseAssignment
 {
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+                    ValueFromPipelineByPropertyName=$true,
+                    Position=0,
+                    ParameterSetName="List")]
+        [String[]] $UserPrincipalName,
+        
+        [Parameter(ParameterSetName="All")]
+        [Switch] $All
+    )
+
     TRY
     {
 	    IF (-not (Get-Module -Name MSOnline -ListAvailable))
@@ -117,7 +130,36 @@
         }
 
 
-    #$AllUsers = get-msoluser -userprincipalname 'gene.laisne@cushwake.com'
+    switch($PsCmdlet.ParameterSetName)
+    {
+        "All" { $AllUsers = get-msoluser -All }
+        "List" 
+        {
+            $Allusers = new-object System.Collections.ArrayList
+            foreach ($entry in $UserPrincipalName)
+            {
+                $user = $null
+                Try
+                {
+                    $user = get-msoluser -userprincipalname $Entry
+                }
+                Catch
+                {
+                    $Err = $_
+                    write-Warning "Error getting user ($Entry) : $($Err.Exception.Message)"
+                    continue
+                }
+                
+                if ($user -eq $null)
+                {
+                	Write-Warning "User not found ($Entry)."
+                    continue
+                }
+                $Allusers.Add($User) | Out-Null
+            }
+        }
+    }
+
     $AllUsers = get-msoluser -All
     $UserIndex = 0
 
