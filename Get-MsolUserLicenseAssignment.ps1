@@ -132,12 +132,19 @@
 
     switch($PsCmdlet.ParameterSetName)
     {
-        "All" { $AllUsers = get-msoluser -All }
+        "All" 
+        {
+            Write-Progress -Activity 'Gathering all users' 
+            $AllUsers = get-msoluser -All
+        }
         "List" 
         {
             $Allusers = new-object System.Collections.ArrayList
+            $userIndex = 0
             foreach ($entry in $UserPrincipalName)
             {
+                Write-Progress -Activity "Gathering Users (step 1 of 2)" -status "Progress:" -PercentComplete $($UserIndex/$($UserPrincipalName.count)*100)
+                $UserIndex++
                 $user = $null
                 Try
                 {
@@ -168,7 +175,7 @@
     foreach ($msoluser in $AllUsers)
     {
         $UserIndex++
-        Write-Progress -Activity "Processing Users" -status "Progress:" -PercentComplete $($UserIndex/$($AllUsers.count)*100)
+        Write-Progress -Activity "Processing Users (step 2 of 2)" -status "Progress:" -PercentComplete $($UserIndex/$($AllUsers.count)*100)
 
         $Object = New-Object PSObject -Property @{
             userprincipalname = $msoluser.userprincipalname
