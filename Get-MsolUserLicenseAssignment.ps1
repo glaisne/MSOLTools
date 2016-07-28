@@ -141,9 +141,10 @@
         {
             $Allusers = new-object System.Collections.ArrayList
             $userIndex = 0
+            $UserPrincipalNameCount = ($UserPrincipalName | measure).count
             foreach ($entry in $UserPrincipalName)
             {
-                Write-Progress -Activity "Gathering Users (step 1 of 2)" -status "Progress:" -PercentComplete $($UserIndex/$($UserPrincipalName.count)*100)
+                Write-Progress -Activity "Gathering Users (step 1 of 2)" -status "Progress: (working on $Entry)" -PercentComplete $($UserIndex/$($UserPrincipalNameCount)*100)
                 $UserIndex++
                 $user = $null
                 Try
@@ -167,7 +168,6 @@
         }
     }
 
-    $AllUsers = get-msoluser -All
     $UserIndex = 0
 
     $msolAccountSku = get-msolAccountSku

@@ -143,12 +143,12 @@ function Add-MsolService
             {
                 # Get all the current services applied in this license
                 $DisabledServices = new-object System.Collections.ArrayList
-                $License = $User.Licenses |? {$_.AccountSkuId -like ":$AccountSkuId"}
+                $License = $User.Licenses |? {$_.AccountSkuId -like "*:$AccountSkuId"}
                 foreach ($Service in $License.ServiceStatus)
                 {
                     if ($Service.ProvisioningStatus.tostring() -eq "Disabled")
                     {
-                        $DisabledServices.Add($Service.serviceplan.serviceName)
+                        $DisabledServices.Add($Service.serviceplan.serviceName) | Out-Null
                     }
                 }
 
