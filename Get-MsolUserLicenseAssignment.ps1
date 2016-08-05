@@ -4,7 +4,7 @@
     Param
     (
         [Parameter(Mandatory=$true,
-                    ValueFromPipelineByPropertyName=$true,
+                    ValueFromPipeline=$true,
                     Position=0,
                     ParameterSetName="List")]
         [String[]] $UserPrincipalName,
