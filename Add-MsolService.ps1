@@ -25,7 +25,7 @@ function Add-MsolService
         
         [Parameter(Mandatory=$true,
                    Position=2)]
-        [string] $ServiceName,
+        [string[]] $ServiceName,
 
         [ValidatePattern("^\w\w$")]
         [string] $UsageLocation
@@ -47,6 +47,15 @@ function Add-MsolService
         if ($user -eq $null)
         {
         	Throw "User not found ($upn)."
+        }
+
+        # get all the services in this license
+        $SKU = Get-MsolAccountSku |? {$_.AccountSkuId -like "*:$AccountSkuID"}
+
+        if ($SKU -isNot [Microsoft.Online.Administration.AccountSkuDetails])
+        {
+            $Exception = new-object System.ArgumentException("Unable to find Account SKU ID $AccountSkuID")
+            Throw $Exception
         }
 
         if (-not $user.IsLicensed)
@@ -75,19 +84,10 @@ function Add-MsolService
 
             # Add License
 
-            # get all the services in this license
-            $SKU = Get-MsolAccountSku |? {$_.AccountSkuId -like "*:$AccountSkuID"}
-
-            if ($sku -isNot [Microsoft.Online.Administration.AccountSkuDetails])
-            {
-                $Exception = new-object System.ArgumentNullException("Unable to find Account SKU ID $AccountSkuID")
-                Throw $Exception
-            }
-
             $DisabledServices = new-object System.Collections.ArrayList
             foreach ($MSOLServiceName in $SKu.servicestatus.ServicePlan.ServiceName)
             {
-                if ($MSOLServiceName -ne $ServiceName)
+                if ($ServiceName -notcontains $MSOLServiceName)
                 {
                     $DisabledServices.Add($MSOLServiceName) | Out-Null
                 }
@@ -96,15 +96,8 @@ function Add-MsolService
             # Check to see if we would just be disabling all the services
             If ($DisabledServices.Count -eq $SKu.servicestatus.ServicePlan.ServiceName.count)
             {
-                $Exception = new-object System.ArgumentException("ServiceName $ServiceName not found in License $AccountSkuID")
-                Throw $Exception
-            }
-
-            # Check to see if we would be enabling more than one service
-            If ($DisabledServices.Count -ne $($SKu.servicestatus.ServicePlan.ServiceName.count - 1))
-            {
-                $Exception = new-object System.ArgumentNullException("ServiceName $ServiceName found multiple times within SKU $AccountSkuID")
-                Throw $Exception
+                Write-Warning "No services provided were found in License $AccountSkuID"
+                Continue
             }
 
             try
@@ -141,9 +134,6 @@ function Add-MsolService
 
             if ($LicenseApplied)
             {
-                # get all SKU
-                $SKU = Get-MsolAccountSku |? {$_.AccountSkuId -like "*:$AccountSkuID"}
-
                 # Get all the current services applied in this license
                 $DisabledServices = new-object System.Collections.ArrayList
                 $License = $User.Licenses |? {$_.AccountSkuId -like "*:$AccountSkuId"}
@@ -158,18 +148,15 @@ function Add-MsolService
                 if ($DisabledServices.Count -eq 0)
                 {
                     Write-Verbose "This user has all services in $AccountSkuId applied."
-                    Break
+                    continue
                 }
 
-                if ($DisabledServices -notcontains $ServiceName)
+                foreach ($SN in $ServiceName)
                 {
-                    Write-Verbose "This user already has $ServiceName applied."
-                    Break
-                }
-
-                if ($DisabledServices -contains $ServiceName)
-                {
-                    $DisabledServices.Remove($ServiceName) | Out-Null
+                    if ($DisabledServices -contains $SN)
+                    {
+                        $DisabledServices.Remove($SN)
+                    }
                 }
 
                 try
@@ -194,19 +181,10 @@ function Add-MsolService
             {
                 # Add License
 
-                # get all the services in this license
-                $SKU = Get-MsolAccountSku |? {$_.AccountSkuId -like "*:$AccountSkuID"}
-
-                if ($sku -isNot [Microsoft.Online.Administration.AccountSkuDetails])
-                {
-                    $Exception = new-object System.ArgumentException("Unable to find Account SKU ID $AccountSkuID")
-                    Throw $Exception
-                }
-
                 $DisabledServices = new-object System.Collections.ArrayList
                 foreach ($MSOLServiceName in $SKu.servicestatus.ServicePlan.ServiceName)
                 {
-                    if ($MSOLServiceName -ne $ServiceName)
+                    if ($ServiceName -notcontains $MSOLServiceName)
                     {
                         $DisabledServices.Add($MSOLServiceName) | Out-Null
                     }
@@ -215,15 +193,8 @@ function Add-MsolService
                 # Check to see if we would just be disabling all the services
                 If ($DisabledServices.Count -eq $SKu.servicestatus.ServicePlan.ServiceName.count)
                 {
-                    $Exception = new-object System.ArgumentNullException("ServiceName $ServiceName not found in License $AccountSkuID")
-                    Throw $Exception
-                }
-
-                # Check to see if we would be enabling more than one service
-                If ($DisabledServices.Count -ne $($SKu.servicestatus.ServicePlan.ServiceName.count - 1))
-                {
-                    $Exception = new-object System.ArgumentNullException("ServiceName $ServiceName found multiple times within SKU $AccountSkuID")
-                    Throw $Exception
+                    Write-Warning "No services provided were found in License $AccountSkuID"
+                    Continue
                 }
 
                 try
