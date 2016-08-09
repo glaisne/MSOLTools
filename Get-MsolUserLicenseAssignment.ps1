@@ -13,6 +13,10 @@
         [Switch] $All
     )
 
+    #
+    #    Ensure the needed modules and connections are set.
+    #
+
     TRY
     {
 	    IF (-not (Get-Module -Name MSOnline -ListAvailable))
@@ -62,7 +66,15 @@
                            Position=0)]
                 $ServiceID
             )
-            switch ($ServiceID)
+
+            foreach ($License in Get-LicenseUsage)
+            {
+                if ($License.AccountSkuID -match "[a-z0-9]+:$ServiceID$")
+                {
+                    $License.DisplayName
+                }
+            }
+<#            switch ($ServiceID)
             {
 		        {$_ -LIKE "*:VISIOCLIENT:VISIO_CLIENT_SUBSCRIPTION"}             { "Visio Pro for Office 365".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:PROJECTCLIENT:PROJECT_CLIENT_SUBSCRIPTION"}         { "Project Pro for Office 365".replace("$([char]13)","$([char]10)$([char]13)"); break }
@@ -127,6 +139,7 @@
 		        {$_ -LIKE "*:EXCHANGEENTERPRISE:EXCHANGE_S_ENTERPRISE"}          { "Exchange Online (Plan 2)`n Exchange Online (Plan 2)".replace("$([char]13)","$([char]10)$([char]13)"); break }
                 Default {$ServiceID}
             }
+            #>
         }
 
 
@@ -184,6 +197,11 @@
             Region            = [string]::Empty
         }
 
+        foreach ($License in Get-LicenseUsage)
+        {
+            $Object | Add-Member -MemberType NoteProperty -Name "Has $($License.DisplayName)" -Value ([string]::Empty) -Force
+        }
+
         foreach ($AccountSkuId in $msolAccountSku)
         {
             foreach ($Service in $AccountSkuId.ServiceStatus)
@@ -198,6 +216,8 @@
             foreach ($License in $msoluser.Licenses)
             {
                 $AccountSkuId = $License.AccountSkuId
+
+                $Object."Has $(Get-O365ServiceFriendlyName $AccountSkuId)" = $True
 
                 foreach ($Service in $License.ServiceStatus)
                 {
