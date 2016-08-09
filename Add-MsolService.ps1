@@ -141,6 +141,9 @@ function Add-MsolService
 
             if ($LicenseApplied)
             {
+                # get all SKU
+                $SKU = Get-MsolAccountSku |? {$_.AccountSkuId -like "*:$AccountSkuID"}
+
                 # Get all the current services applied in this license
                 $DisabledServices = new-object System.Collections.ArrayList
                 $License = $User.Licenses |? {$_.AccountSkuId -like "*:$AccountSkuId"}
