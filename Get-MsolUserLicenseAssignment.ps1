@@ -22,7 +22,7 @@
 	    IF (-not (Get-Module -Name MSOnline -ListAvailable))
 	    {
 		    Write-Verbose -Message "Import module MSOL"
-		    #Import-Module -Name MSOnline -ErrorAction Stop
+		    Import-Module -Name MSOnline -ErrorAction Stop
 	    }
     }
     CATCH

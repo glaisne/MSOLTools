@@ -46,16 +46,6 @@ function CreateTestUser ()
     $Test
 }
 
-<#
-.Synopsis
-   Short description
-.DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
-#>
 function AddLicense
 {
     Param
@@ -73,23 +63,11 @@ function AddLicense
 
     $License = new-object Microsoft.Online.Administration.UserLicense
 
-    $AccountSkus = new-object System.Collections.ArrayList
-    Foreach ($Service in $EnabledService)
-    {
-        $AccountSku = new-object Microsoft.Online.Administration.AccountSkuIdentifier
-        $AccountSku.AccountName = $Tenant
-        $AccountSku.SkuPartNumber = $Service
-        $AccountSkus.Add($AccountSku) | Out-Null
-    }
-    Foreach ($Service in $DisabledService)
-    {
-        $AccountSku = new-object Microsoft.Online.Administration.AccountSkuIdentifier
-        $AccountSku.AccountName = $Tenant
-        $AccountSku.SkuPartNumber = $Service
-        $AccountSkus.Add($AccountSku) | Out-Null
-    }
+    $AccountSku = new-object Microsoft.Online.Administration.AccountSkuIdentifier
+    $AccountSku.AccountName   = $Tenant
+    $AccountSku.SkuPartNumber = $SkuId
 
-    $License.AccountSku = $AccountSkus.ToArray()
+    $License.AccountSku = $AccountSku
 
     $License.AccountSkuId = "{0}:{1}" -f $Tenant, $SkuId
 
@@ -101,7 +79,7 @@ function AddLicense
         $ServicePlan   = new-object Microsoft.Online.Administration.ServicePlan
         $ServicePlan.ServiceName = $Service
         $ServiceStatus.ServicePlan = $ServicePlan
-        $ServiceStatus.rovisioningSatus = [Microsoft.Online.Administration.ProvisioningStatus]::Success
+        $ServiceStatus.ProvisioningStatus = [Microsoft.Online.Administration.ProvisioningStatus]::Success
         $ServiceStatuses.Add($ServiceStatus) | Out-Null
     }
     Foreach ($Service in $DisabledService)
@@ -110,12 +88,20 @@ function AddLicense
         $ServicePlan   = new-object Microsoft.Online.Administration.ServicePlan
         $ServicePlan.ServiceName = $Service
         $ServiceStatus.ServicePlan = $ServicePlan
-        $ServiceStatus.rovisioningSatus = [Microsoft.Online.Administration.ProvisioningStatus]::Disabled
+        $ServiceStatus.ProvisioningStatus = [Microsoft.Online.Administration.ProvisioningStatus]::Disabled
         $ServiceStatuses.Add($ServiceStatus) | Out-Null
     }
-    $License.ServiceStatus = $ServiceStatuses
+    $License.ServiceStatus = $ServiceStatuses.ToArray()
 
-    $License
+    if ($user.Licenses -eq $null)
+    {
+        $User.Licenses = $License
+    }
+    else
+    {
+        $User.Licenses.Add($License) | Out-Null
+    }
+
 }
 
  
@@ -128,21 +114,17 @@ Describe “Add-MsolService" {
     }
 
     Context "User not licensed and no UsageLocation" {
-        #Mock Get-MsolUser { $t = CreateTestUser; $t }
+        Mock Get-MsolUser { $t = CreateTestUser; $t.UsageLocation = $null; $t }
         It "User not licensed and no UsageLocation" {
             { Add-MsolService -UserPrincipalName 'Test@contoso.com' -AccountskuId 'VISIOCLIENT' -ServiceName 'VISIOCLIENT' } | Should Throw
-        }
-    }
-
-    Context "Bad parameters" {
-        
-        It "User not licensed and no UsageLocation" {
-            { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'VISIOCLIENT' -ServiceName 'VISIOCLIENT' } | Should Throw
         }
         
         It "User not licensed and invalid UsageLocation" {
             { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'VISIOCLIENT' -ServiceName 'VISIOCLIENT' -UsageLocation 'asdfasdf'} | Should Throw
         }
+    }
+
+    Context "Bad parameters" {
         
         It "Invalid ServiceName" {
             { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'ENTERPRISEPREMIUM_NOPSTNCONF' -ServiceName 'ThisIsNotARealServiceName' -UsageLocation 'AU'} | Should Throw
