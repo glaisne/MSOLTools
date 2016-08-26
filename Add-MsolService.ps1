@@ -193,7 +193,7 @@ function Add-MsolService
                 # Check to see if we would just be disabling all the services
                 If ($DisabledServices.Count -eq $SKu.servicestatus.ServicePlan.ServiceName.count)
                 {
-                    Write-Warning "No services provided were found in License $AccountSkuID"
+                    Write-Warning "Could not find service in Licnese $AccountSkuID. No Changes made."
                     Continue
                 }
 

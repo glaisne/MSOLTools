@@ -122,13 +122,13 @@ Describe “Add-MsolService" {
         It "User not licensed and invalid UsageLocation" {
             { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'VISIOCLIENT' -ServiceName 'VISIOCLIENT' -UsageLocation 'asdfasdf'} | Should Throw
         }
+        
+        It "Invalid ServiceName" {
+            { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'ENTERPRISEPREMIUM_NOPSTNCONF' -ServiceName 'ThisIsNotARealServiceName' -UsageLocation 'AU'} | Should not Throw
+        }
     }
 
     Context "Bad parameters" {
-        
-        It "Invalid ServiceName" {
-            { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'ENTERPRISEPREMIUM_NOPSTNCONF' -ServiceName 'ThisIsNotARealServiceName' -UsageLocation 'AU'} | Should Throw
-        }
         
         It "Invalid License options" {
             { Add-MsolService -UserPrincipalName 'test.laisne@cwservices.com' -AccountskuId 'ENTERPRISEPREMIUM_NOPSTNCONF' -ServiceName 'MCOEV' -UsageLocation 'AU'} | Should Throw
