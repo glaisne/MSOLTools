@@ -55,7 +55,7 @@
 
 
 
-    function Get-O365ServiceFriendlyName
+<#     function Get-O365ServiceFriendlyName
     {
             [CmdletBinding()]
             Param
@@ -74,7 +74,7 @@
                     $License.DisplayName
                 }
             }
-<#            switch ($ServiceID)
+           switch ($ServiceID)
             {
 		        {$_ -LIKE "*:VISIOCLIENT:VISIO_CLIENT_SUBSCRIPTION"}             { "Visio Pro for Office 365".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:PROJECTCLIENT:PROJECT_CLIENT_SUBSCRIPTION"}         { "Project Pro for Office 365".replace("$([char]13)","$([char]10)$([char]13)"); break }
@@ -139,9 +139,9 @@
 		        {$_ -LIKE "*:EXCHANGEENTERPRISE:EXCHANGE_S_ENTERPRISE"}          { "Exchange Online (Plan 2)`n Exchange Online (Plan 2)".replace("$([char]13)","$([char]10)$([char]13)"); break }
                 Default {$ServiceID}
             }
-            #>
+            
         }
-
+#>
 
     switch($PsCmdlet.ParameterSetName)
     {
