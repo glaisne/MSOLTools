@@ -7,6 +7,7 @@
 . $PSScriptRoot\Add-MsolService.ps1
 . $PSScriptRoot\Get-O365LicenseFriendlyName
 . $PSScriptRoot\Get-AccountSkuIdFriendlyName.ps1
+. $PSScriptRoot\Get-O365ServiceFriendlyName.ps1
 
 
 
