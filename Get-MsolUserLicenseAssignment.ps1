@@ -19,7 +19,7 @@
 
     TRY
     {
-	    IF (-not (Get-Module -Name MSOnline -ListAvailable))
+	    IF (-not (Get-Module -Name MSOnline))
 	    {
 		    Write-Verbose -Message "Import module MSOL"
 		    Import-Module -Name MSOnline -ErrorAction Stop
@@ -53,7 +53,8 @@
         throw $e.exception.message
     }
 
-
+    
+    write-verbose "Getting users..."
     switch($PsCmdlet.ParameterSetName)
     {
         "All" 
@@ -92,12 +93,33 @@
         }
     }
 
+    Write-Progress -Activity "Processing Users (step 2 of 2)" -status "Progress:" -PercentComplete 0
+    Write-Verbose "Gathering License and Services 'Friendly Names.'"
     $UserIndex = 0
 
     $msolAccountSku = get-msolAccountSku
 
     $LicenseUsage = Get-LicenseUsage
+    $LicenseMap = @{}
+    foreach ($license in $LicenseUsage)
+    {
+        $LicenseMap.Add($($license.AccountSkuID),"$($license.DisplayName)")
+    }
 
+    $ServiceFriendlyNames = new-object System.Collections.ArrayList
+    $ServiceFriendlyNameMap = @{}
+    foreach ($AccountSkuId in $msolAccountSku)
+    {
+        foreach ($Service in $AccountSkuId.ServiceStatus)
+        {
+            $ServiceFriendlyName = Get-O365ServiceFriendlyName -ServiceID $("{0}:{1}" -f $AccountSkuId.AccountSkuId, $service.ServicePlan.ServiceName)
+            $ServiceFriendlyNames.Add($ServiceFriendlyName) | Out-Null
+            $ServiceFriendlyNameMap.Add($("{0}:{1}" -f $AccountSkuId.AccountSkuId, $service.ServicePlan.ServiceName), $ServiceFriendlyName)
+        }
+    }
+
+
+    Write-verbose "Processing users..."
     foreach ($msoluser in $AllUsers)
     {
         $UserIndex++
@@ -116,12 +138,9 @@
             $Object | Add-Member -MemberType NoteProperty -Name "Has $($License.DisplayName)" -Value ([string]::Empty) -Force
         }
 
-        foreach ($AccountSkuId in $msolAccountSku)
+        foreach ($ServiceFriendlyName in $ServiceFriendlyNameMap.GetEnumerator())
         {
-            foreach ($Service in $AccountSkuId.ServiceStatus)
-            {
-                $Object | Add-Member -MemberType NoteProperty -Name $(Get-O365ServiceFriendlyName -ServiceID $("{0}:{1}" -f $AccountSkuId.AccountSkuId, $service.ServicePlan.ServiceName)) -Value ([string]::Empty) -Force
-            }
+            $Object | Add-Member -MemberType NoteProperty -Name $ServiceFriendlyName.Value -Value ([string]::Empty) -Force
         }
 
 
@@ -131,14 +150,15 @@
             {
                 $AccountSkuId = $License.AccountSkuId
 
-                $LicenseFriendlyName = Get-O365LicenseFriendlyName $AccountSkuId.split(':')[1]
+                #$LicenseFriendlyName = Get-O365LicenseFriendlyName $AccountSkuId.split(':')[1]
+                $LicenseFriendlyName = $LicenseMap.Get_Item($AccountSkuId)
 
                 $Object."Has $LicenseFriendlyName" = $True
                 $Object.Licenses.Add($LicenseFriendlyName) | Out-Null
 
                 foreach ($Service in $License.ServiceStatus)
                 {
-                    $ServiceID = $(Get-O365ServiceFriendlyName -ServiceID $("{0}:{1}" -f $AccountSkuId, $service.ServicePlan.ServiceName))
+                    $ServiceID = $ServiceFriendlyNameMap.Get_Item($("{0}:{1}" -f $AccountSkuId, $service.ServicePlan.ServiceName))
                     $Status    = $Service.ProvisioningStatus
 
                     $Object."$ServiceID" = $Status # | Add-Member -MemberType NoteProperty -Name $ServiceID -Value $Status -Force

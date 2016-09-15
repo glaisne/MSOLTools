@@ -12,10 +12,10 @@ function Get-LicenseUsage
 {
     TRY
     {
-	    IF (-not (Get-Module -Name MSOnline -ListAvailable))
+	    IF (-not (Get-Module -Name MSOnline))
 	    {
 		    Write-Verbose -Message "Import module MSOL"
-		    #Import-Module -Name MSOnline -ErrorAction Stop
+		    Import-Module -Name MSOnline -ErrorAction Stop
 	    }
     }
     CATCH
