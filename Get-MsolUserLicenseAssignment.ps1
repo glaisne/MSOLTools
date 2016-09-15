@@ -96,10 +96,12 @@
 
     $msolAccountSku = get-msolAccountSku
 
+    $LicenseUsage = Get-LicenseUsage
+
     foreach ($msoluser in $AllUsers)
     {
         $UserIndex++
-        Write-Progress -Activity "Processing Users (step 2 of 2)" -status "Progress:" -PercentComplete $($UserIndex/$($AllUsers.count)*100)
+        Write-Progress -Activity "Processing Users (step 2 of 2)" -status "Progress: ($($msoluser.userprincipalname))" -PercentComplete $($UserIndex/$($AllUsers.count)*100)
 
         $Object = New-Object PSObject -Property @{
             userprincipalname = $msoluser.userprincipalname
@@ -109,7 +111,7 @@
             Licenses          = New-Object System.Collections.ArrayList
         }
 
-        foreach ($License in Get-LicenseUsage)
+        foreach ($License in $LicenseUsage)
         {
             $Object | Add-Member -MemberType NoteProperty -Name "Has $($License.DisplayName)" -Value ([string]::Empty) -Force
         }
