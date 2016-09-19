@@ -34,6 +34,8 @@ function Add-MsolService
     Foreach ($upn in $UserPrincipalName)
     {
         $upn = $upn.Trim()
+
+        Write-Verbose "$upn : Processing user"
         $user = $null
         Try
         {
@@ -60,7 +62,7 @@ function Add-MsolService
 
         if (-not $user.IsLicensed)
         {
-            # The user is not licensened.
+            Write-Verbose "$upn : User is not licensed."
 
             if ([string]::IsNullOrEmpty($user.UsageLocation))
             {
@@ -72,6 +74,7 @@ function Add-MsolService
                 }
 
                 # Set UsageLocation
+                Write-Verbose "$upn : Setting user's UsageLocation to $UsageLocation"
                 Try
                 {
                     Set-msoluser -UserPrincipalName $upn -UsageLocation $UsageLocation -ErrorAction Stop
@@ -80,6 +83,9 @@ function Add-MsolService
                 {
                     Throw $_
                 }
+                
+                Write-Verbose "$upn : Services before any change:"
+                ((Get-MsolUser -UserPrincipalName $entry).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -auto | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
             }
 
             # Add License
@@ -89,7 +95,12 @@ function Add-MsolService
             {
                 if ($ServiceName -notcontains $MSOLServiceName)
                 {
+                    Write-Verbose "$upn : Disabling Service: $MSOLServiceName"
                     $DisabledServices.Add($MSOLServiceName) | Out-Null
+                }
+                else
+                {
+                    Write-Verbose "$upn : Enabling Service: $MSOLServiceName"
                 }
             }
 
@@ -100,6 +111,7 @@ function Add-MsolService
                 Continue
             }
 
+            Write-Verbose "$upn : Configuring License Options."
             try
             {
                 $LicenseOptions = New-MsolLicenseOptions -AccountSkuId $SKU.AccountSkuId -DisabledPlans $DisabledServices.ToArray() -ErrorAction stop
@@ -109,6 +121,7 @@ function Add-MsolService
                 throw $_
             }
 
+            Write-Verbose "$upn : Setting user licenses."
             try
             {
                 Set-MsolUserLicense -User $upn -AddLicenses $SKU.AccountSkuId -LicenseOptions $LicenseOptions -ErrorAction stop
@@ -117,10 +130,14 @@ function Add-MsolService
             {
                 throw $_
             }
+            Write-Verbose "$Upn : Services After change:"
+            ((Get-MsolUser -UserPrincipalName $entry).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -auto | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
 
         }
         else  # User is licensed
         {
+            Write-Verbose "$upn : User is licensed."
+
             # Determine if this user has this license
             $LicenseApplied = $False
             foreach ($AppliedLicense in $user.Licenses)
@@ -134,6 +151,11 @@ function Add-MsolService
 
             if ($LicenseApplied)
             {
+                Write-Verbose "$upn : User has this license assigned : $AccountSkuID"
+
+                Write-Verbose "$upn : Services before any changes:"
+                ((Get-MsolUser -UserPrincipalName $entry).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -auto | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+
                 # Get all the current services applied in this license
                 $DisabledServices = new-object System.Collections.ArrayList
                 $License = $User.Licenses |? {$_.AccountSkuId -like "*:$AccountSkuId"}
@@ -141,6 +163,7 @@ function Add-MsolService
                 {
                     if ($Service.ProvisioningStatus.tostring() -eq "Disabled")
                     {
+                        Write-Verbose "$upn : Current disabled service : $($Service.serviceplan.serviceName)"
                         $DisabledServices.Add($Service.serviceplan.serviceName) | Out-Null
                     }
                 }
@@ -151,14 +174,25 @@ function Add-MsolService
                     continue
                 }
 
+                $DisabledServicesAltered = $False
                 foreach ($SN in $ServiceName)
                 {
                     if ($DisabledServices -contains $SN)
                     {
-                        $DisabledServices.Remove($SN)
+                        Write-Verbose "$upn : Enabling this service: $SN"
+                        $DisabledServices.Remove($SN.ToUpper())
+                        $DisabledServicesAltered = $True
                     }
                 }
 
+                if ($DisabledServicesAltered -eq $False)
+                {
+                    Write-Verbose "$upn : No changes made to user services."
+                    ((Get-MsolUser -UserPrincipalName $entry).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -auto | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                    Continue
+                }
+
+                Write-Verbose "$upn : Configuring License Options."
                 try
                 {
                     $LicenseOptions = New-MsolLicenseOptions -AccountSkuId $SKU.AccountSkuId -DisabledPlans $DisabledServices.ToArray() -ErrorAction stop
@@ -168,6 +202,7 @@ function Add-MsolService
                     throw $_
                 }
 
+                Write-Verbose "$upn : Setting user licenses."
                 try
                 {
                     Set-MsolUserLicense -User $upn -LicenseOptions $LicenseOptions -ErrorAction stop
@@ -176,9 +211,13 @@ function Add-MsolService
                 {
                     throw $_
                 }
+                
+                Write-Verbose "$upn : Services after changes:"
+                ((Get-MsolUser -UserPrincipalName $entry).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -auto | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
             }
             else  # User does not have this license
             {
+                Write-Verbose "$upn : User does not have this license."
                 # Add License
 
                 $DisabledServices = new-object System.Collections.ArrayList
@@ -186,6 +225,7 @@ function Add-MsolService
                 {
                     if ($ServiceName -notcontains $MSOLServiceName)
                     {
+                        Write-Verbose "$upn : Disabling this service : $MSOLServiceName"
                         $DisabledServices.Add($MSOLServiceName) | Out-Null
                     }
                 }
@@ -197,6 +237,7 @@ function Add-MsolService
                     Continue
                 }
 
+                Write-Verbose "$upn : Configuring License Options."
                 try
                 {
                     $LicenseOptions = New-MsolLicenseOptions -AccountSkuId $SKU.AccountSkuId -DisabledPlans $DisabledServices.ToArray() -ErrorAction stop
@@ -206,6 +247,7 @@ function Add-MsolService
                     throw $_
                 }
 
+                Write-Verbose "$upn : Setting user licenses."
                 try
                 {
                     Set-MsolUserLicense -User $upn -AddLicenses $SKU.AccountSkuId -LicenseOptions $LicenseOptions -ErrorAction stop
@@ -214,6 +256,8 @@ function Add-MsolService
                 {
                     throw $_
                 }
+
+                ((Get-MsolUser -UserPrincipalName $entry).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -auto | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
             }
         }
     }
