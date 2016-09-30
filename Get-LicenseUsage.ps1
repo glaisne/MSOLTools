@@ -26,7 +26,7 @@ function Get-LicenseUsage
 
     try
     {
-        get-msoldomain -ea stop | Out-Null
+        get-msoldomain -ErrorAction stop | Out-Null
     }
     catch [Microsoft.Online.Administration.Automation.MicrosoftOnlineException]
     {
@@ -52,8 +52,8 @@ function Get-LicenseUsage
             Param
             (
                 # Param1 help description
-                [Parameter(Mandatory=$true,
-                           ValueFromPipeline=$true,
+                [Parameter(Mandatory=$True,
+                           ValueFromPipeline=$True,
                            Position=0)]
                 $AccountSkuId
             )

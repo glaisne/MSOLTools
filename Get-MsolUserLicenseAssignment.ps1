@@ -3,8 +3,8 @@
     [CmdletBinding()]
     Param
     (
-        [Parameter(Mandatory=$true,
-                    ValueFromPipeline=$true,
+        [Parameter(Mandatory=$True,
+                    ValueFromPipeline=$True,
                     Position=0,
                     ParameterSetName="List")]
         [String[]] $UserPrincipalName,
@@ -27,13 +27,13 @@
     }
     CATCH
     {
-        $err = $_
+        $Err = $_
 	    throw "exception while importing module MSOnline : $($err.exception.message)"
     }
 
     try
     {
-        get-msoldomain -ea stop | Out-Null
+        get-msoldomain -ErrorAction stop | Out-Null
     }
     catch [Microsoft.Online.Administration.Automation.MicrosoftOnlineException]
     {
@@ -43,14 +43,14 @@
         }
         catch
         {
-            $err = $_
+            $Err = $_
             throw "Error connecting to MSOnLine : $($err.exception.message)"
         }
     }
     catch
     {
-        $err = $_
-        throw $e.exception.message
+        $Err = $_
+        throw $Err.exception.message
     }
 
     
@@ -65,16 +65,16 @@
         "List" 
         {
             $Allusers = new-object System.Collections.ArrayList
-            $userIndex = 0
+            $UserIndex = 0
             $UserPrincipalNameCount = ($UserPrincipalName | measure).count
-            foreach ($entry in $UserPrincipalName)
+            foreach ($Entry in $UserPrincipalName)
             {
-                Write-Progress -Activity "Gathering Users (step 1 of 2)" -status "Progress: (working on $Entry)" -PercentComplete $($UserIndex/$($UserPrincipalNameCount)*100)
+                Write-Progress -Activity "Gathering Users (step 1 of 2)" -Status "Progress: (working on $Entry)" -PercentComplete $($UserIndex/$($UserPrincipalNameCount)*100)
                 $UserIndex++
-                $user = $null
+                $User = $Null
                 Try
                 {
-                    $user = get-msoluser -userprincipalname $Entry
+                    $User = get-msoluser -UserPrincipalName $Entry
                 }
                 Catch
                 {
@@ -83,7 +83,7 @@
                     continue
                 }
                 
-                if ($user -eq $null)
+                if ($User -eq $Null)
                 {
                 	Write-Warning "User not found ($Entry)."
                     continue
@@ -93,7 +93,7 @@
         }
     }
 
-    Write-Progress -Activity "Processing Users (step 2 of 2)" -status "Progress:" -PercentComplete 0
+    Write-Progress -Activity "Processing Users (step 2 of 2)" -Status "Progress:" -PercentComplete 0
     Write-Verbose "Gathering License and Services 'Friendly Names.'"
     $UserIndex = 0
 
@@ -101,9 +101,9 @@
 
     $LicenseUsage = Get-LicenseUsage
     $LicenseMap = @{}
-    foreach ($license in $LicenseUsage)
+    foreach ($License in $LicenseUsage)
     {
-        $LicenseMap.Add($($license.AccountSkuID),"$($license.DisplayName)")
+        $LicenseMap.Add($($License.AccountSkuID),"$($License.DisplayName)")
     }
 
     $ServiceFriendlyNames = new-object System.Collections.ArrayList
@@ -112,23 +112,23 @@
     {
         foreach ($Service in $AccountSkuId.ServiceStatus)
         {
-            $ServiceFriendlyName = Get-O365ServiceFriendlyName -ServiceID $("{0}:{1}" -f $AccountSkuId.AccountSkuId, $service.ServicePlan.ServiceName)
+            $ServiceFriendlyName = Get-O365ServiceFriendlyName -ServiceID $("{0}:{1}" -f $AccountSkuId.AccountSkuId, $Service.ServicePlan.ServiceName)
             $ServiceFriendlyNames.Add($ServiceFriendlyName) | Out-Null
-            $ServiceFriendlyNameMap.Add($("{0}:{1}" -f $AccountSkuId.AccountSkuId, $service.ServicePlan.ServiceName), $ServiceFriendlyName)
+            $ServiceFriendlyNameMap.Add($("{0}:{1}" -f $AccountSkuId.AccountSkuId, $Service.ServicePlan.ServiceName), $ServiceFriendlyName)
         }
     }
 
 
     Write-verbose "Processing users..."
-    foreach ($msoluser in $AllUsers)
+    foreach ($MsolUser in $AllUsers)
     {
         $UserIndex++
-        Write-Progress -Activity "Processing Users (step 2 of 2)" -status "Progress: ($($msoluser.userprincipalname))" -PercentComplete $($UserIndex/$($AllUsers.count)*100)
+        Write-Progress -Activity "Processing Users (step 2 of 2)" -Status "Progress: ($($MsolUser.userprincipalname))" -PercentComplete $($UserIndex/$($AllUsers.count)*100)
 
         $Object = New-Object PSObject -Property @{
-            userprincipalname = $msoluser.userprincipalname
-            IsLicensed        = $msoluser.IsLicensed
-            UsageLocation     = $msoluser.UsageLocation
+            userprincipalname = $MsolUser.userprincipalname
+            IsLicensed        = $MsolUser.IsLicensed
+            UsageLocation     = $MsolUser.UsageLocation
             Region            = [string]::Empty
             Licenses          = New-Object System.Collections.ArrayList
         }
@@ -144,9 +144,9 @@
         }
 
 
-        if ($msoluser.IsLicensed)
+        if ($MsolUser.IsLicensed)
         {
-            foreach ($License in $msoluser.Licenses)
+            foreach ($License in $MsolUser.Licenses)
             {
                 $AccountSkuId = $License.AccountSkuId
 
@@ -158,7 +158,7 @@
 
                 foreach ($Service in $License.ServiceStatus)
                 {
-                    $ServiceID = $ServiceFriendlyNameMap.Get_Item($("{0}:{1}" -f $AccountSkuId, $service.ServicePlan.ServiceName))
+                    $ServiceID = $ServiceFriendlyNameMap.Get_Item($("{0}:{1}" -f $AccountSkuId, $Service.ServicePlan.ServiceName))
                     $Status    = $Service.ProvisioningStatus
 
                     $Object."$ServiceID" = $Status # | Add-Member -MemberType NoteProperty -Name $ServiceID -Value $Status -Force
