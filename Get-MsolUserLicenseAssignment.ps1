@@ -39,7 +39,7 @@
     {
         try
         {
-            Connect-MsolService
+            Connect-MsolService -ErrorAction Stop
         }
         catch
         {
@@ -74,7 +74,7 @@
                 $User = $Null
                 Try
                 {
-                    $User = get-msoluser -UserPrincipalName $Entry
+                    $User = get-msoluser -UserPrincipalName $Entry -ErrorAction Stop
                 }
                 Catch
                 {

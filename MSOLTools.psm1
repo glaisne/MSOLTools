@@ -8,6 +8,8 @@
 . $PSScriptRoot\Get-O365LicenseFriendlyName
 . $PSScriptRoot\Get-AccountSkuIdFriendlyName.ps1
 . $PSScriptRoot\Get-O365ServiceFriendlyName.ps1
+. $PSScriptRoot\Get-MSOLUserserviceStatus.ps1
+. $PSScriptRoot\Get-MSOLUserServiceStatus.ps1
 
 
 
