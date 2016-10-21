@@ -17,6 +17,7 @@ Add-MsolService.ps1
 Get-AccountSkuIdFriendlyName.ps1
 Get-O365ServiceFriendlyName.ps1
 Get-MSOLUserserviceStatus.ps1
+Get-MSOLSubscriptionTimeline.ps1
 "@
 
 $filelist -split "`n" | % { Copy-Item -Verbose -Path "$pwd\$($_.trim())" -Destination "$($TargetPath)\$($_.trim())" }

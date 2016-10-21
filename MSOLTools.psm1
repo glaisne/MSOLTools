@@ -10,6 +10,7 @@
 . $PSScriptRoot\Get-O365ServiceFriendlyName.ps1
 . $PSScriptRoot\Get-MSOLUserserviceStatus.ps1
 . $PSScriptRoot\Get-MSOLUserServiceStatus.ps1
+. $PSScriptRoot\Get-MSOLSubscriptionTimeline.ps1
 
 
 
