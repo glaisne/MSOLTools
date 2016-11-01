@@ -14,11 +14,15 @@ function Get-MSOLSubscriptionTimeline
     $SubscriptionData = get-msolsubscription
     $Usage            = Get-LicenseUsage
 
+    # Get unique Skus
     $SKUs  = $($SubscriptionData | select skupartnumber -Unique).SkuPartNumber
+
+    # Get unique dates to build timeline
     $Dates = $($SubscriptionData | select NextLifecycleDate -Unique).NextLifecycleDate |? {-not [string]::IsNullOrEmpty($_ )}
 
     $Timeline = new-object System.Collections.ArrayList
 
+    # Build each timeline entry
     foreach ($Entry in $SKUs)
     {
         $Product = New-Object PSObject -Property @{
@@ -26,8 +30,10 @@ function Get-MSOLSubscriptionTimeline
             DisplayName   = Get-AccountSkuIdFriendlyName $Entry
             Owned         = 0
             Consumed      = $(($usage |? {$_.AccountSkuId -match ":$Entry$"}).ConsumedUnits)
+            Status        = [string]::Empty
         }
 
+        # Add the unique date to this object
         foreach ($Date in $Dates | sort)
         {
             $Product | Add-Member -MemberType NoteProperty -Name $Date.ToShortDateString() -Value ([string]::Empty) -Force
@@ -44,6 +50,7 @@ function Get-MSOLSubscriptionTimeline
         {
             if ($Entry.SkuPartNumber -eq $LineItem.SkuPartNumber)
             {
+                $Entry
                 $Entry.Owned = $Entry.Owned + $LineItem.TotalLicenses
                 if ([string]::IsNullOrEmpty($LineItem.NextLifecycleDate))
                 {
