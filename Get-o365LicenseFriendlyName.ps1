@@ -9,6 +9,17 @@
                     Position=0)]
         $AccountSkuId
     )
+
+    if ($MODULELicenseFriendlyName.containskey($AccountSkuId))
+    {
+        $MODULELicenseFriendlyName[$AccountSkuId]
+    }
+    else
+    {
+        $AccountSkuId
+    }
+
+    <#
     switch ($AccountSkuId)
     {
 		'VISIOCLIENT'                   { "Visio Pro for Office 365"; break }
@@ -29,4 +40,5 @@
 		'EXCHANGEENTERPRISE'            { "Exchange Online (Plan 2)"; break }
         Default {$AccountSkuId}
     }
+    #>
 }

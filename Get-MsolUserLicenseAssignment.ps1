@@ -17,20 +17,6 @@
     #    Ensure the needed modules and connections are set.
     #
 
-    TRY
-    {
-	    IF (-not (Get-Module -Name MSOnline))
-	    {
-		    Write-Verbose -Message "Import module MSOL"
-		    Import-Module -Name MSOnline -ErrorAction Stop
-	    }
-    }
-    CATCH
-    {
-        $Err = $_
-	    throw "exception while importing module MSOnline : $($err.exception.message)"
-    }
-
     try
     {
         get-msoldomain -ErrorAction stop | Out-Null
@@ -97,14 +83,14 @@
     Write-Verbose "Gathering License and Services 'Friendly Names.'"
     $UserIndex = 0
 
-    $msolAccountSku = get-msolAccountSku
+    $msolAccountSkus = get-msolAccountSku
 
     $LicenseUsage = Get-LicenseUsage
-    $LicenseMap = @{}
-    foreach ($License in $LicenseUsage)
-    {
-        $LicenseMap.Add($($License.AccountSkuID),"$($License.DisplayName)")
-    }
+    #$LicenseMap = @{}
+    #foreach ($License in $LicenseUsage)
+    #{
+    #    $LicenseMap.Add($($License.AccountSkuID),"$($License.DisplayName)")
+    #}
 
     $ServiceFriendlyNames = new-object System.Collections.ArrayList
     $ServiceFriendlyNameMap = @{}
@@ -112,9 +98,9 @@
     {
         foreach ($Service in $AccountSkuId.ServiceStatus)
         {
-            $ServiceFriendlyName = Get-O365ServiceFriendlyName -ServiceID $("{0}:{1}" -f $AccountSkuId.AccountSkuId, $Service.ServicePlan.ServiceName)
+            $ServiceFriendlyName = Get-O365ServiceFriendlyName -ServiceID $Service.ServicePlan.ServiceName
             $ServiceFriendlyNames.Add($ServiceFriendlyName) | Out-Null
-            $ServiceFriendlyNameMap.Add($("{0}:{1}" -f $AccountSkuId.AccountSkuId, $Service.ServicePlan.ServiceName), $ServiceFriendlyName)
+            $ServiceFriendlyNameMap.Add($("{0}:{1}" -f $(Get-o365LicenseFriendlyName $AccountSkuId.AccountSkuId.split(':')[1]), $Service.ServicePlan.ServiceName), $ServiceFriendlyName)
         }
     }
 
@@ -130,18 +116,35 @@
             IsLicensed        = $MsolUser.IsLicensed
             UsageLocation     = $MsolUser.UsageLocation
             Region            = [string]::Empty
-            Licenses          = New-Object System.Collections.ArrayList
+            #Licenses          = New-Object System.Collections.ArrayList
         }
 
-        foreach ($License in $LicenseUsage)
+        #foreach ($License in $LicenseUsage)
+        #{
+        #    $Object | Add-Member -MemberType NoteProperty -Name "Has $($License.DisplayName)" -Value ([string]::Empty) -Force
+        #}
+
+        #foreach ($ServiceFriendlyName in $ServiceFriendlyNameMap.GetEnumerator())
+        #foreach ($Service in $AccountSkuId.ServiceStatus)
+        #{
+        #    $Object | Add-Member -MemberType NoteProperty -Name $ServiceFriendlyName.Value -Value ([string]::Empty) -Force
+        #}
+
+        foreach ($msolAccountSku in $msolAccountSkus)
         {
-            $Object | Add-Member -MemberType NoteProperty -Name "Has $($License.DisplayName)" -Value ([string]::Empty) -Force
+            $object | Add-Member -MemberType NoteProperty -Name "Has $(Get-o365LicenseFriendlyName -AccountSkuId $($msolAccountSku.AccountSkuId.split(':')[1]))" -Value ([string]::Empty) -Force
         }
 
-        foreach ($ServiceFriendlyName in $ServiceFriendlyNameMap.GetEnumerator())
+        foreach ($msolAccountSku in $msolAccountSkus)
         {
-            $Object | Add-Member -MemberType NoteProperty -Name $ServiceFriendlyName.Value -Value ([string]::Empty) -Force
+            $License = $(Get-o365LicenseFriendlyName -AccountSkuId $($msolAccountSku.AccountSkuId.split(':')[1]))
+            foreach ($ServiceStatus in $msolAccountSku.ServiceStatus)
+            {
+                $object | Add-Member -MemberType NoteProperty -Name "$License`n$(Get-O365ServiceFriendlyName $ServiceStatus.ServicePlan.ServiceName)" -Value ([string]::Empty) -Force
+            }
         }
+
+
 
 
         if ($MsolUser.IsLicensed)
@@ -150,18 +153,19 @@
             {
                 $AccountSkuId = $License.AccountSkuId
 
-                #$LicenseFriendlyName = Get-O365LicenseFriendlyName $AccountSkuId.split(':')[1]
-                $LicenseFriendlyName = $LicenseMap.Get_Item($AccountSkuId)
+                #$LicenseFriendlyName = $LicenseMap.Get_Item($AccountSkuId)
+                $LicenseFriendlyName = Get-o365LicenseFriendlyName -AccountSkuId $AccountSkuId.split(':')[1]
 
                 $Object."Has $LicenseFriendlyName" = $True
-                $Object.Licenses.Add($LicenseFriendlyName) | Out-Null
+                #$Object.Licenses.Add($LicenseFriendlyName) | Out-Null
 
-                foreach ($Service in $License.ServiceStatus)
+                foreach ($ServiceStatus in $License.ServiceStatus)
                 {
-                    $ServiceID = $ServiceFriendlyNameMap.Get_Item($("{0}:{1}" -f $AccountSkuId, $Service.ServicePlan.ServiceName))
-                    $Status    = $Service.ProvisioningStatus
+                    #$ServiceID = $ServiceFriendlyNameMap.Get_Item($("{0}:{1}" -f $AccountSkuId, $Service.ServicePlan.ServiceName))
+                    #$ServiceID = $ServiceStatus.ServicePlan.ServiceName
+                    $Status    = $ServiceStatus.ProvisioningStatus
 
-                    $Object."$ServiceID" = $Status # | Add-Member -MemberType NoteProperty -Name $ServiceID -Value $Status -Force
+                    $Object."$LicenseFriendlyName`n$(Get-O365ServiceFriendlyName $ServiceStatus.ServicePlan.ServiceName)" = $Status 
                 }
             }
         }

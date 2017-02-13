@@ -45,7 +45,7 @@ function Get-LicenseUsage
         $err = $_
         throw $e.exception.message
     }
-
+<#
         function Get-AccountSkuIdFriendlyName
         {
             [CmdletBinding()]
@@ -78,7 +78,7 @@ function Get-LicenseUsage
                 Default {$AccountSkuId}
             }
         }
-
+#>
 
 
 
