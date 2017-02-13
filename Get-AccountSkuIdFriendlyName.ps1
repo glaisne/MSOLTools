@@ -27,6 +27,9 @@
 		'EXCHANGEARCHIVE_ADDON'         { "Exchange Online Archiving for Exchange Online"; break }
 		'MCOPSTN2'                      { "Skype for Business PSTN Domestic and International Calling"; break }
 		'EXCHANGEENTERPRISE'            { "Exchange Online (Plan 2)"; break }
+        'FLOW_O365_P2'                  { "Flow for Office 365"; break }
+        'POWERAPPS_O365_P2'             { "PowerApps for Office 365"; break }
+        'TEAMS1'                        { "Microsoft Teams"; break }
         Default {$AccountSkuId}
     }
 }

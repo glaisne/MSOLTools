@@ -66,6 +66,9 @@
 		        {$_ -LIKE "*:ENTERPRISEPREMIUM_NOPSTNCONF:EXCHANGE_S_ENTERPRISE"}{ "Office 365 Enterprise E5 without PSTN Conferencing`n Exchange Online (Plan 2)".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:ENTERPRISEPREMIUM_NOPSTNCONF:SHAREPOINTENTERPRISE"} { "Office 365 Enterprise E5 without PSTN Conferencing`n SharePoint Online (Plan 2)".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:ENTERPRISEPREMIUM_NOPSTNCONF:SHAREPOINTWAC"}        { "Office 365 Enterprise E5 without PSTN Conferencing`n Office Online".replace("$([char]13)","$([char]10)$([char]13)"); break }
+                {$_ -LIKE "*:ENTERPRISEPREMIUM_NOPSTNCONF:FLOW_O365_P2"}         { "Office 365 Enterprise E5 without PSTN Conferencing`n Flow for Office 365".replace("$([char]13)","$([char]10)$([char]13)"); break }
+                {$_ -LIKE "*:ENTERPRISEPREMIUM_NOPSTNCONF:POWERAPPS_O365_P2"}    { "Office 365 Enterprise E5 without PSTN Conferencing`n PowerApps for Office 365".replace("$([char]13)","$([char]10)$([char]13)"); break }
+                {$_ -LIKE "*:ENTERPRISEPREMIUM_NOPSTNCONF:TEAMS1"}               { "Office 365 Enterprise E5 without PSTN Conferencing`n Microsoft Teams".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:EMS:RMS_S_PREMIUM"}                                 { "Enterprise Mobility Suite`n Azure Rights Management Premium".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:EMS:INTUNE_A"}                                      { "Enterprise Mobility Suite`n Intune A Direct".replace("$([char]13)","$([char]10)$([char]13)"); break }
 		        {$_ -LIKE "*:EMS:RMS_S_ENTERPRISE"}                              { "Enterprise Mobility Suite`n Azure Rights Management".replace("$([char]13)","$([char]10)$([char]13)"); break }
