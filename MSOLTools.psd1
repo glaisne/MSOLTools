@@ -4,7 +4,7 @@
 RootModule = 'MSOLTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.1.5'
 
 # ID used to uniquely identify this module
 GUID = '7cbd7a84-bfbc-4b00-b19f-466156724dff'

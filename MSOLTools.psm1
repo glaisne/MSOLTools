@@ -83,4 +83,6 @@ $MODULELicenseFriendlyName = @{
     'RIGHTSMANAGEMENT_ADHOC'         = "Rights Management Adhoc"
 }
 
+# This Alias strictly for backward compatability until the 
+# Get-AccountSkuIdFriendlyName function can be removed.
 New-Alias -Name Get-AccountSkuIdFriendlyName -Value Get-o365LicenseFriendlyName
