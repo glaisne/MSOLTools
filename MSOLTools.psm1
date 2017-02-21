@@ -82,3 +82,5 @@ $MODULELicenseFriendlyName = @{
     'PROJECT_MADEIRA_PREVIEW_IW_SKU' = "Dynamics 365 for Financials for IWs"
     'RIGHTSMANAGEMENT_ADHOC'         = "Rights Management Adhoc"
 }
+
+New-Alias -Name Get-AccountSkuIdFriendlyName -Value Get-o365LicenseFriendlyName
