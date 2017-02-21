@@ -1,16 +1,30 @@
 ﻿#requires -version 4
 
 
-# Load External functions.
-. $PSScriptRoot\Get-LicenseUsage.ps1
-. $PSScriptRoot\Get-MsolUserLicenseAssignment.ps1
-. $PSScriptRoot\Add-MsolService.ps1
-. $PSScriptRoot\Get-O365LicenseFriendlyName
-. $PSScriptRoot\Get-AccountSkuIdFriendlyName.ps1
-. $PSScriptRoot\Get-O365ServiceFriendlyName.ps1
-. $PSScriptRoot\Get-MSOLUserserviceStatus.ps1
-. $PSScriptRoot\Get-MSOLUserServiceStatus.ps1
-. $PSScriptRoot\Get-MSOLSubscriptionTimeline.ps1
+#Get public and private function definition files.
+    $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue |? {$_.name -notlike "*_BETA*"})
+    $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
+
+#Dot source the files
+    Foreach($import in @($Public + $Private))
+    {
+        Try
+        {
+            . $import.fullname
+        }
+        Catch
+        {
+            Write-Error -Message "Failed to import function $($import.fullname): $_"
+        }
+    }
+
+# Here I might...
+    # Read in or create an initial config file and variable
+    # Export Public functions ($Public.BaseName) for WIP modules
+    # Set variables visible to the module and its functions only
+
+Export-ModuleMember -Function $Public.Basename
+
 
 
 $MODULEServiceFriendlyName = @{
@@ -86,3 +100,5 @@ $MODULELicenseFriendlyName = @{
 # This Alias strictly for backward compatability until the 
 # Get-AccountSkuIdFriendlyName function can be removed.
 New-Alias -Name Get-AccountSkuIdFriendlyName -Value Get-o365LicenseFriendlyName
+
+Export-ModuleMember -Function * -Alias *

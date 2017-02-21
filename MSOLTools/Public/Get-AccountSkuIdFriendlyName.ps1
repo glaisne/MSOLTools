@@ -1,4 +1,5 @@
-﻿function Get-AccountSkuIdFriendlyName
+﻿<#
+function Get-AccountSkuIdFriendlyName
 {
     [CmdletBinding()]
     Param
@@ -33,3 +34,5 @@
         Default {$AccountSkuId}
     }
 }
+
+#>
