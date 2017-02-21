@@ -14,18 +14,18 @@ function Get-MSOLUserServiceStatus
     Param
     (
         # Param1 help description
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$True,
                    Position=0)]
         [string[]] $UserPrincipalName,
         [string] $License,
         [string] $ServiceName
     )
 
-    foreach ($upn in $UserPrincipalName)
+    foreach ($Upn in $UserPrincipalName)
     {
-        $MsolUser = Get-MsolUser -UserPrincipalName $upn
+        $MsolUser = Get-MsolUser -UserPrincipalName $Upn
 
-        $MyLicense = $null
+        $MyLicense = $Null
         $HasMyLicense = $False
         foreach ($MsolUserLicense in $MsolUser.Licenses.getenumerator())
         {
@@ -39,11 +39,11 @@ function Get-MSOLUserServiceStatus
 
         if (-Not $HasMyLicense)
         {
-            return $null
+            return $Null
         }
         else
         {
-            $SS = $null
+            $SS = $Null
             :FirstLoop foreach ($ServiceStatus in $MyLicense.ServiceStatus)
             {
                 :SecondLoop foreach ($ServicePlan in $ServiceStatus.ServicePlan)

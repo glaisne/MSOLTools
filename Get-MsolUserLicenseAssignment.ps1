@@ -132,7 +132,7 @@
 
         foreach ($msolAccountSku in $msolAccountSkus)
         {
-            $object | Add-Member -MemberType NoteProperty -Name "Has $(Get-o365LicenseFriendlyName -AccountSkuId $($msolAccountSku.AccountSkuId.split(':')[1]))" -Value ([string]::Empty) -Force
+            $Object | Add-Member -MemberType NoteProperty -Name "Has $(Get-o365LicenseFriendlyName -AccountSkuId $($msolAccountSku.AccountSkuId.split(':')[1]))" -Value ([string]::Empty) -Force
         }
 
         foreach ($msolAccountSku in $msolAccountSkus)
@@ -140,7 +140,7 @@
             $License = $(Get-o365LicenseFriendlyName -AccountSkuId $($msolAccountSku.AccountSkuId.split(':')[1]))
             foreach ($ServiceStatus in $msolAccountSku.ServiceStatus)
             {
-                $object | Add-Member -MemberType NoteProperty -Name "$License`n$(Get-O365ServiceFriendlyName $ServiceStatus.ServicePlan.ServiceName)" -Value ([string]::Empty) -Force
+                $Object | Add-Member -MemberType NoteProperty -Name "$License`n$(Get-O365ServiceFriendlyName $ServiceStatus.ServicePlan.ServiceName)" -Value ([string]::Empty) -Force
             }
         }
 

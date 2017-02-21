@@ -4,8 +4,8 @@
     Param
     (
         # Param1 help description
-        [Parameter(Mandatory=$true,
-                    ValueFromPipeline=$true,
+        [Parameter(Mandatory=$True,
+                    ValueFromPipeline=$True,
                     Position=0)]
         $ServiceID
     )

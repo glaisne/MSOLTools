@@ -29,7 +29,7 @@ function Get-MSOLSubscriptionTimeline
             SkuPartNumber = $Entry
             DisplayName   = Get-AccountSkuIdFriendlyName $Entry
             Owned         = 0
-            Consumed      = $(($usage |? {$_.AccountSkuId -match ":$Entry$"}).ConsumedUnits)
+            Consumed      = $(($Usage |? {$_.AccountSkuId -match ":$Entry$"}).ConsumedUnits)
             Status        = [string]::Empty
         }
 

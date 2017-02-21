@@ -16,8 +16,6 @@ $ModuleInformation = Import-module -Name $ManifestFile -PassThru
 # Get the functions present in the Manifest
 $ExportedFunctions = $ModuleInformation.ExportedFunctions.Values.name
 
-write-host 'test'
-
 # Testing the Module
 Describe "$ModuleName Module - Tokenize" -Tags "Module" {
     FOREACH ($funct in $ExportedFunctions)
@@ -31,10 +29,7 @@ Describe "$ModuleName Module - Tokenize" -Tags "Module" {
                 if ($Token.type -eq 'CommandParameter')
                 {
                     it "CommandParameter - Capitalized ($($Token.Content))"{
-                        if (-not ($Token.Content -cmatch '[A-Z]' | Should Be $true))
-                        {
-                            $Toke |fl
-                        }
+                        $Token.Content -cmatch '[A-Z]' | Should Be $true
                     }
                 }
             }
@@ -52,7 +47,7 @@ Describe "$ModuleName Module - Tokenize" -Tags "Module" {
                         Continue
                     }
                     it "Variable - Capitalized ($($Token.Content))"{
-                        $Token.Content -cmatch '[A-Z].*' | Should Be $true
+                        $Token.Content -cmatch '[A-Z].*' | Should Be $True
                     }
                 }
             }

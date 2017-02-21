@@ -20,8 +20,8 @@ function Get-LicenseUsage
     }
     CATCH
     {
-        $err = $_
-	    throw "exception while importing module MSOnline : $($err.exception.message)"
+        $Err = $_
+	    throw "exception while importing module MSOnline : $($Err.exception.message)"
     }
 
     try
@@ -36,14 +36,14 @@ function Get-LicenseUsage
         }
         catch
         {
-            $err = $_
-            throw "Error connecting to MSOnLine : $($err.exception.message)"
+            $Err = $_
+            throw "Error connecting to MSOnLine : $($Err.exception.message)"
         }
     }
     catch
     {
-        $err = $_
-        throw $e.exception.message
+        $Err = $_
+        throw $Err.exception.message
     }
 <#
         function Get-AccountSkuIdFriendlyName
@@ -86,7 +86,7 @@ function Get-LicenseUsage
 
     foreach ($AccountSku in Get-MsolAccountSku)
     {
-        $AccountSku | Add-Member -MemberType ScriptProperty -Name AvailableUnits -Value {$this.ActiveUnits - $this.ConsumedUnits - $this.LockedOutUnits - $this.SuspendedUnits - $this.WarningUnits} -Force
+        $AccountSku | Add-Member -MemberType ScriptProperty -Name AvailableUnits -Value {$This.ActiveUnits - $This.ConsumedUnits - $This.LockedOutUnits - $This.SuspendedUnits - $This.WarningUnits} -Force
         Write-Output $AccountSku | select AccountSkuId, @{Expression={Get-AccountSkuIdFriendlyName -AccountSkuId $_.AccountSkuId.split(':')[1]};label='DisplayName'}, ActiveUnits, AvailableUnits, ConsumedUnits, LockedOutUnits, SuspendedUnits, WarningUnits
     }
 
