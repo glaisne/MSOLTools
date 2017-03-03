@@ -23,7 +23,17 @@ function Get-MSOLUserServiceStatus
 
     foreach ($Upn in $UserPrincipalName)
     {
-        $MsolUser = Get-MsolUser -UserPrincipalName $Upn
+        Write-Verbose "[$(Get-Date -f 'yyyyMMdd HHmmss')] $($userPrincipalName.padRight(30)) [Get-MSOLUserServiceStatus] Getting user."
+        Try
+        {
+            $MsolUser = Get-MsolUser -UserPrincipalName $Upn -ErrorAction Stop
+        }
+        catch
+        {
+            $err = $_
+            Write-Warning "[$(Get-Date -f 'yyyyMMdd HHmmss')] $($userPrincipalName.padRight(30)) [Get-MSOLUserServiceStatus] Failed getting user : $($err.Exception.Message)"
+        }
+        
 
         $MyLicense = $Null
         $HasMyLicense = $False
@@ -43,6 +53,7 @@ function Get-MSOLUserServiceStatus
         }
         else
         {
+            Write-Verbose "[$(Get-Date -f 'yyyyMMdd HHmmss')] $($userPrincipalName.padRight(30)) [Get-MSOLUserServiceStatus] User has the license ($License)"
             $SS = $Null
             :FirstLoop foreach ($ServiceStatus in $MyLicense.ServiceStatus)
             {
@@ -50,6 +61,7 @@ function Get-MSOLUserServiceStatus
                 {
                     if ($ServicePlan.ServiceName -eq $ServiceName)
                     {
+                        Write-Verbose "[$(Get-Date -f 'yyyyMMdd HHmmss')] $($userPrincipalName.padRight(30)) [Get-MSOLUserServiceStatus] Service Status: $ServiceStatus"
                         $SS = $ServiceStatus
                         Break FirstLoop
                     }
