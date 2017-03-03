@@ -31,7 +31,7 @@ function Get-MSOLUserServiceStatus
         catch
         {
             $err = $_
-            Write-Warning "[$(Get-Date -f 'yyyyMMdd HHmmss')] $($userPrincipalName.padRight(30)) [Get-MSOLUserServiceStatus] Failed getting user : $($err.Exception.Message)"
+            throw "Failed getting user : $($err.Exception.Message)"
         }
         
 
