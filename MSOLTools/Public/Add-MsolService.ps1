@@ -80,7 +80,7 @@ function Add-MsolService
             }
 
             # Get all the services in this license
-            $SKU = Get-MsolAccountSku |? {$_.AccountSkuId -like "*:$AccountSkuID"}
+            $SKU = Get-MsolAccountSku |? {$_.SkuPartNumber -eq $AccountSkuID}
 
             # Make sure we have what we need.
             if ($SKU -isNot [Microsoft.Online.Administration.AccountSkuDetails])
@@ -114,7 +114,7 @@ function Add-MsolService
                     }
                 
                     Write-Verbose "$UPN : Services before any change:"
-                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
 
                 }
 
@@ -161,7 +161,7 @@ function Add-MsolService
                     throw $_
                 }
                 Write-Verbose "$Upn : Services After change:"
-                ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
             
                 write-verbose "$UPN : RevertScript : Set-MsolUserLicense -User $UPN -RemoveLicenses $($SKU.AccountSkuId)"
                 if ($CreateRevertScript)
@@ -178,7 +178,7 @@ function Add-MsolService
                 $LicenseApplied = $False
                 foreach ($AppliedLicense in $User.Licenses)
                 {
-                    if ($AppliedLicense.AccountSkuId -like "*:$AccountSkuID")
+                    if ($AppliedLicense.accountsku.skupartnumber -eq $AccountSkuID)
                     {
                         $LicenseApplied = $True
                         Break
@@ -190,11 +190,11 @@ function Add-MsolService
                     Write-Verbose "$UPN : User has this license assigned : $AccountSkuID"
 
                     Write-Verbose "$UPN : Services before any changes:"
-                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
 
                     # Get all the current services applied in this license
                     $DisabledServices = new-object System.Collections.ArrayList
-                    $License = $User.Licenses |? {$_.AccountSkuId -like "*:$AccountSkuId"}
+                    $License = $User.Licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuId}
                     foreach ($Service in $License.ServiceStatus)
                     {
                         if ($Service.ProvisioningStatus.tostring() -eq "Disabled")
@@ -226,7 +226,7 @@ function Add-MsolService
                     if ($DisabledServicesAltered -eq $False)
                     {
                         Write-Verbose "$UPN : No changes made to user's services."
-                        ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                        ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
                         Continue
                     }
 
@@ -251,7 +251,7 @@ function Add-MsolService
                     }
                 
                     Write-Verbose "$UPN : Services after changes:"
-                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
 
                     Write-Verbose "$UPN : RevertScript : `$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $($SKU.AccountSkuId) -DisabledPlans $($RevertServices.ToArray() -join ',')"
                     Write-Verbose "$UPN : RevertScript : Set-MsolUserLicense -User $UPN -LicenseOptions `$LicenseOptions"
@@ -303,7 +303,7 @@ function Add-MsolService
                         throw $_
                     }
 
-                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountskuid -like "*:$AccountSkuID"}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
             
                     write-verbose "$UPN : RevertScript : Set-MsolUserLicense -User $UPN -RemoveLicenses $($SKU.AccountSkuId)"
                     if ($CreateRevertScript)
