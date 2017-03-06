@@ -303,7 +303,7 @@ function Add-MsolService
                         throw $_
                     }
 
-                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
+                    ((Get-MsolUser -UserPrincipalName $UPN).licenses |? {$_.accountsku.skupartnumber -eq $AccountSkuID}).servicestatus |ft -AutoSize | Out-String -Stream | ? {-not [string]::IsNullOrEmpty($_)} |% {write-verbose "$(" "*4)$_"}
             
                     write-verbose "$UPN : RevertScript : Set-MsolUserLicense -User $UPN -RemoveLicenses $($SKU.AccountSkuId)"
                     if ($CreateRevertScript)
