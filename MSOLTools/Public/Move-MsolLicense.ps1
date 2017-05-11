@@ -1,5 +1,5 @@
 ﻿
-write-Warning "This cmdlet is in a BETA state. It should only be used in testing."
+write-Warning "This cmdlet (Move-MsolLicense) is in a BETA state. It should only be used in testing."
 
 <#
 .Synopsis

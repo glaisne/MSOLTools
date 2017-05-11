@@ -92,9 +92,12 @@ $MODULELicenseFriendlyName = @{
     'PROJECTONLINE_PLAN_1'           = 'Project Online'
     'EXCHANGEARCHIVE_ADDON'          = 'Exchange Online Archiving for Exchange Online'
     'MCOPSTN2'                       = 'Skype for Business PSTN Domestic and International Calling'
+    'MCOPSTN_5'                      = 'Skype for Business PSTN Calling Domestic Small'
     'EXCHANGEENTERPRISE'             = 'Exchange Online (Plan 2)'
     'PROJECT_MADEIRA_PREVIEW_IW_SKU' = 'Dynamics 365 for Financials for IWs'
     'RIGHTSMANAGEMENT_ADHOC'         = 'Rights Management Adhoc'
+    'MCOPSTNC'                       = 'Skype for Business PSTN Consumption'
+    'MCOPSTN1'                       = 'Skype for Business PSTN Domestic Calling'
 }
 
 # This Alias strictly for backward compatability until the 
