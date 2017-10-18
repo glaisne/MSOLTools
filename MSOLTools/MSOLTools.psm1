@@ -107,6 +107,11 @@ $MODULELicenseFriendlyName = @{
     'MCOPSTN1'                       = 'Skype for Business PSTN Domestic Calling'
     'MCOPSTNC'                       = 'Communications Credits'
     'MFA_STANDALONE'                 = 'Microsoft Azure Multi-Factor Authentication Premium Standalone'
+    'EMSPREMIUM'                     = 'Enterprise Mobility + Security E5'
+    'STANDARDPACK'                   = 'Office 365 Enterprise E1'
+    'ENTERPRISEWITHSCAL'             = 'Office 365 Enterprise E4'
+    'PROJECTPROFESSIONAL'            = 'Project Online Professional'
+    'PROJECTONLINE_PLAN_2'           = 'Project Online Premium'
 }
 
 # This Alias strictly for backward compatability until the 

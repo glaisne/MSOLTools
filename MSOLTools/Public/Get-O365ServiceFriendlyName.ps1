@@ -6,6 +6,7 @@
         # Param1 help description
         [Parameter(Mandatory=$True,
                     ValueFromPipeline=$True,
+					ValueFromPipelineByPropertyName = $True,
                     Position=0)]
         $ServiceID
     )
