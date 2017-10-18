@@ -2,26 +2,26 @@
 
 
 #Get public and private function definition files.
-    $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue |? {$_.name -notlike "*_BETA*"})
-    $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
+$Public = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue |? {$_.name -notlike "*_BETA*"})
+$Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
 
 #Dot source the files
-    Foreach($import in @($Public + $Private))
+Foreach ($import in @($Public + $Private))
+{
+    Try
     {
-        Try
-        {
-            . $import.fullname
-        }
-        Catch
-        {
-            Write-Error -Message "Failed to import function $($import.fullname): $_"
-        }
+        . $import.fullname
     }
+    Catch
+    {
+        Write-Error -Message "Failed to import function $($import.fullname): $_"
+    }
+}
 
 # Here I might...
-    # Read in or create an initial config file and variable
-    # Export Public functions ($Public.BaseName) for WIP modules
-    # Set variables visible to the module and its functions only
+# Read in or create an initial config file and variable
+# Export Public functions ($Public.BaseName) for WIP modules
+# Set variables visible to the module and its functions only
 
 Export-ModuleMember -Function $Public.Basename
 
@@ -73,11 +73,13 @@ $MODULEServiceFriendlyName = @{
 
 
 $MODULELicenseFriendlyName = @{
-    'VISIOCLIENT'                    = 'Visio Pro for Office 365'
-    'PROJECTCLIENT'                  = 'Project Pro for Office 365'
+    'VISIOCLIENT'                    = 'Visio Online Plan 2'
+    'STREAM'                         = 'Microsoft Stream'
+    'PROJECTCLIENT'                  = 'Project for Office 365'
     'POWERAPPS_INDIVIDUAL_USER'      = 'Microsoft PowerApps and Logic flows'
     'POWER_BI_INDIVIDUAL_USER'       = 'Microsoft Power BI for Office 365 Individual User Trial' 
     'POWER_BI_PRO'                   = 'Power BI Pro'
+    'ENTERPRISEPREMIUM'              = 'Office 365 Enterprise E5'
     'ENTERPRISEPACKWITHOUTPROPLUS'   = 'Office 365 Enterprise E3 without ProPlus'
     'ENTERPRISEPACK'                 = 'Office 365 Enterprise E3'
     'FLOW_FREE'                      = 'Microsoft Flow Free'
@@ -85,19 +87,26 @@ $MODULELicenseFriendlyName = @{
     'EXCHANGESTANDARD'               = 'Exchange Online Plan 1'
     'DYN365_ENTERPRISE_PLAN1'        = 'Dynamics 365 Plan 1 Enterprise Edition'
     'POWER_BI_STANDARD'              = 'Power BI (free)'
+    'PROJECTPREMIUM'                 = 'Project Online Premium'
     'ENTERPRISEPREMIUM_NOPSTNCONF'   = 'Office 365 Enterprise E5 without PSTN Conferencing'
     'EMS'                            = 'Enterprise Mobility Suite'
     'AX7_USER_TRIAL'                 = 'Microsoft Dynamics AX7 User Trial'
     'MCOMEETADV'                     = 'Skype for Business PSTN Conferencing'
+    'MCOEV'                          = 'Phone System'
     'PROJECTONLINE_PLAN_1'           = 'Project Online'
+    'PROJECTESSENTIALS'              = 'Project Online Essentials'
+    'WIN_DEF_ATP'                    = 'Windows Defender Advanced Threat Protection'
+    'MCOPSTN_5'                      = 'Domestic Calling Plan (120 min)'
     'EXCHANGEARCHIVE_ADDON'          = 'Exchange Online Archiving for Exchange Online'
     'MCOPSTN2'                       = 'Skype for Business PSTN Domestic and International Calling'
-    'MCOPSTN_5'                      = 'Skype for Business PSTN Calling Domestic Small'
+    #'MCOPSTN_5'                      = 'Skype for Business PSTN Calling Domestic Small'
     'EXCHANGEENTERPRISE'             = 'Exchange Online (Plan 2)'
     'PROJECT_MADEIRA_PREVIEW_IW_SKU' = 'Dynamics 365 for Financials for IWs'
     'RIGHTSMANAGEMENT_ADHOC'         = 'Rights Management Adhoc'
-    'MCOPSTNC'                       = 'Skype for Business PSTN Consumption'
+    #'MCOPSTNC'                       = 'Skype for Business PSTN Consumption'
     'MCOPSTN1'                       = 'Skype for Business PSTN Domestic Calling'
+    'MCOPSTNC'                       = 'Communications Credits'
+    'MFA_STANDALONE'                 = 'Microsoft Azure Multi-Factor Authentication Premium Standalone'
 }
 
 # This Alias strictly for backward compatability until the 
